@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<T3locallang>
+	<meta type="array">
+		<type>module</type>
+		<description>Language labels for extension 'twitter_frontend'</description>
+	</meta>
+	<data type="array">
+		<languageKey index="default" type="array">
+			<label index="pi1_title">Twitter: Show status</label>
+			<label index="pi1_plus_wiz_description">Shows the last status of a defined user</label>
+		</languageKey>
+		<languageKey index="de" type="array">
+			<label index="pi1_title">Twitter: Zeige Status</label>
+			<label index="pi1_plus_wiz_description">Zeigt den letzten Status eines definierten Users</label>
+		</languageKey>
+	</data>
+</T3locallang>
