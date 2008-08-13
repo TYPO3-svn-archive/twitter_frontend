@@ -1,0 +1,48 @@
+<T3DataStructure>
+	<meta>
+		<langDisable>1</langDisable>
+	</meta>
+  	<sheets>
+    	<sDEF>
+      		<ROOT>
+        		<TCEforms>
+          			<sheetTitle>LLL:EXT:twitter_frontend/locallang_tca.xml:twitter_frontend.pi_flexform.tceforms</sheetTitle>
+        		</TCEforms>
+        		<type>array</type>
+        		<el>
+           			<selectView>
+						<TCEforms>
+							<label>LLL:EXT:twitter_frontend/locallang_tca.xml:twitter_frontend.pi_flexform.show.selectView</label>
+							<config>
+								<type>select</type>
+								<items type="array">
+									<numIndex index="0" type="array">
+										<numIndex index="0">LLL:EXT:twitter_frontend/locallang_tca.xml:twitter_frontend.pi_flexform.show.selectView.showSingle</numIndex>
+										<numIndex index="1">showSingle</numIndex>
+									</numIndex>
+									<numIndex index="1" type="array">
+										<numIndex index="0">LLL:EXT:twitter_frontend/locallang_tca.xml:twitter_frontend.pi_flexform.show.selectView.showFeed</numIndex>
+										<numIndex index="1">showFeed</numIndex>
+									</numIndex>
+								</items>
+								<maxitems>1</maxitems>
+								<size>1</size>
+							</config>
+						</TCEforms>
+		  			</selectView>
+		  			<username>
+						<TCEforms>
+							<label>LLL:EXT:twitter_frontend/locallang_tca.xml:twitter_frontend.pi_flexform.show.username</label>
+							<config>
+								<type>input</type>
+								<eval>char</eval>
+								<checkbox></checkbox>
+								<size>20</size>
+							</config>
+						</TCEforms>
+		  			</username>
+        		</el>
+      		</ROOT>
+    	</sDEF>
+  	</sheets>
+</T3DataStructure>

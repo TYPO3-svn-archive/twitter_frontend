@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+	<title>Twitter Frontend</title>
+</head>
+
+<body>
+<em>Markers:</em>
+SINGLESTATUS - Last status update in SHOWSINGLE
+
+
+<br />
+<h3>SHOWSINGLE</h3>
+<em>This is the template for showing the last status update</em>
+<br />
+
+<!-- ###SHOWSINGLE### begin
+	This is the template for showing the last status update
+-->
+<div class="twitter">
+	<div class="twitter-item">
+		<div class="twitter-image"><a href="http://www.twitter.com/###USERSCREENNAME###" title="Twitter Profil ###USERNAME###"><img src="###USERPROFILEIMAGEURL###" alt="###USERSCREENNAME###" width="48" height="48" /></a></div>
+		<div class="twitter-status">###SINGLESTATUS###</div>
+		<div class="twitter-meta"><a href="http://www.twitter.com/###USERSCREENNAME###" title="Twitter Profil ###USERNAME###">###USERSCREENNAME###</a>, ###CREATEDAT### via ###SOURCE###</div>
+	</div>
+</div>
+<!-- ###SHOWSINGLE### end -->
+
+
+<br />
+<h3>SHOWFEED</h3>
+<em>This is the template for showing status feed</em>
+<br />
+
+<!-- ###SHOWFEED### begin
+	This is the template for showing status feed
+-->
+<div class="twitter">
+	<!-- ###SHOWSINGLESTATUS### begin -->
+	<div class="twitter-item">
+		<div class="twitter-image"><a href="http://www.twitter.com/###USERSCREENNAME###" title="Twitter Profil ###USERNAME###"><img src="###USERPROFILEIMAGEURL###" alt="###USERSCREENNAME###" width="48" height="48" /></a></div>
+		<div class="twitter-status">###SINGLESTATUS###</div>
+		<div class="twitter-meta"><a href="http://www.twitter.com/###USERSCREENNAME###" title="Twitter Profil ###USERNAME###">###USERSCREENNAME###</a>, ###CREATEDAT### via ###SOURCE###</div>
+	</div>
+	<!-- ###SHOWSINGLESTATUS### end -->
+</div>
+<!-- ###SHOWFEED### end -->
+
+
+
+</body>
+</html>

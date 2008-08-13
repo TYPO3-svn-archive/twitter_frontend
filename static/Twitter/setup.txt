@@ -1,1 +1,12 @@
-// Setup
+// Standard Typoscript-Setup for Extension Twitter
+
+plugin.tx_twitterfrontend_pi1 = USER
+plugin.tx_twitterfrontend_pi1 {
+  # template file
+  templateFile = {$plugin.twitter_frontend.file.templateFile}
+  
+  createdAt = {$plugin.twitter_frontend.createdAt}
+  timezone = {$plugin.twitter_frontend.timezone}
+  
+  replyToUrl = {$plugin.twitter_frontend.replyToUrl}
+}

@@ -6,11 +6,12 @@
 	</meta>
 	<data type="array">
 		<languageKey index="default" type="array">
-			<label index="list_mode_1">Mode 1</label>
-			<label index="list_mode_2">Mode 2</label>
-			<label index="list_mode_3">Mode 3</label>
-			<label index="back">Back</label>
-			<label index="submit_button_label">Click here to submit value</label>
+			<label index="missingTemplate">Template not found.</label>
+			<label index="missingTwitterId">Missing Twitter ID or username.</label>
+		</languageKey>
+		<languageKey index="de" type="array">
+			<label index="missingTemplate">Template nicht gefunden.</label>
+			<label index="missingTwitterId">Twitter ID oder Username nicht angegeben.</label>
 		</languageKey>
 	</data>
 </T3locallang>
