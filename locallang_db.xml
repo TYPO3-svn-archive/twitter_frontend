@@ -7,9 +7,19 @@
 	<data type="array">
 		<languageKey index="default" type="array">
 			<label index="tt_content.list_type_pi1">Twitter: Show status</label>
+			<label index="tx_twitterfrontend_cache">Twitter Frontend Cache</label>
+			<label index="tx_twitterfrontend_cache.twitterid">Twitter ID</label>
+			<label index="tx_twitterfrontend_cache.view">View</label>
+			<label index="tx_twitterfrontend_cache.lastupdate">Last update</label>
+			<label index="tx_twitterfrontend_cache.content">Content</label>
 		</languageKey>
 		<languageKey index="de" type="array">
 			<label index="tt_content.list_type_pi1">Twitter: Zeige Status</label>
+			<label index="tx_twitterfrontend_cache">Twitter Frontend Cache</label>
+			<label index="tx_twitterfrontend_cache.twitterid">Twitter ID</label>
+			<label index="tx_twitterfrontend_cache.view">Ansicht</label>
+			<label index="tx_twitterfrontend_cache.lastupdate">Letztes Update</label>
+			<label index="tx_twitterfrontend_cache.content">Inhalt</label>
 		</languageKey>
 	</data>
 </T3locallang>

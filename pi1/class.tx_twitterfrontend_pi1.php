@@ -36,7 +36,6 @@ class tx_twitterfrontend_pi1 extends tslib_pibase {
 	var $prefixId      = 'tx_twitterfrontend_pi1';		// Same as class name
 	var $scriptRelPath = 'pi1/class.tx_twitterfrontend_pi1.php';	// Path to this script relative to the extension dir.
 	var $extKey        = 'twitter_frontend';	// The extension key.
-	var $pi_checkCHash = TRUE;
 	
 	/**
 	 * The main method of the PlugIn
@@ -49,24 +48,57 @@ class tx_twitterfrontend_pi1 extends tslib_pibase {
 		$this->conf=$conf;
 		$this->pi_setPiVarDefaults();
 		$this->pi_loadLL();
-		$cache =1;
-		$this->pi_USER_INT_obj=0;	// Configuring so caching is not expected. This value means that no cHash params are ever set. We do this, because it's a USER_INT object!
+		$this->pi_USER_INT_obj = 1;
 		$this->pi_initPIflexForm();
-	
-		// Read Twitter ID or username from flexform
-		$id = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'username', 'sDEF');
-		
-		switch($this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'selectView', 'sDEF'))	{
-			case "showFeed":
-				$content = $this->showFeed($id);
-				break;
-				 
-			case "showSingle":
-			default:
-				$content = $this->showSingle($id);
-				break;
+			
+		// Read Twitter ID or username from Typoscript or flexform
+		if( $this->conf['twitterId'] != '')	{
+			$id = $this->conf['twitterId'];
 		}
-	
+		else	{
+			$id = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'username', 'sDEF');
+		}
+		
+		// Read view from Typoscript or flexform 
+		if($this->conf['view'] != '')	{
+			$view = $this->conf['view'];
+		}
+		else {
+			$view = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], 'selectView', 'sDEF');
+		}
+		
+		// Read update from Typoscript
+		$update = $this->conf['update'];
+		
+		// Check database if cached content is older than update
+		$myTable = 'tx_twitterfrontend_cache';
+		$myColumns = 'twitterid, lastupdate, content';
+		$myWhere = 'twitterid="' . $id . '" AND showview="' . $view . '"';
+		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery( $myColumns, $myTable, $myWhere, '', '', '' );
+		$row = $GLOBALS['TYPO3_DB']->sql_fetch_row( $res );
+		
+		if($row[1]>(time()-$this->conf["update"]))	{
+			$content = $row[2];
+		}
+		else	{
+			if($row[0] != '')	{
+				$updateData = true;
+			}
+			else	{
+				$updateData = false;
+			}
+			switch($view)	{
+				case "showFeed":
+					$content = $this->showFeed($id, $view, $updateData);
+					break;
+					 
+				case "showSingle":
+				default:
+					$content = $this->showSingle($id, $view, $updateData);
+					break;
+			}
+		}
+		
 		return $this->pi_wrapInBaseClass($content);
 	}
 	
@@ -77,7 +109,7 @@ class tx_twitterfrontend_pi1 extends tslib_pibase {
 	* @param 	string 	$id: required. Specifies the ID or twitter username for whom to returns the updates.
 	* @return	The Content
 	* */
-	function showFeed($id=false)	{
+	function showFeed($id=false, $view, $updateData=false)	{
 		// Load CSS file and template
 		if($this->conf["cssFile"] != "")	{
 			$GLOBALS['TSFE']->additionalHeaderData[$this->extKey] = '<link rel="stylesheet" type="text/css" href="' . $this->conf["cssFile"] . '" />';
@@ -102,17 +134,18 @@ class tx_twitterfrontend_pi1 extends tslib_pibase {
 			for($x=0; $x<20; $x++)	{
 				// Timestamp of status update
 				$createdat_strip = strptime($status['statuses'][0]['ch']['status'][$x]['ch']['created_at'][0]['values'][0], "%a %b %d %H:%M:%S +0000 %Y");
-				$createdat = date($this->conf["createdAt"], mktime($createdat_strip['tm_hour']+$this->conf["timezone"], $createdat_strip['tm_min'], $createdat_strip['tm_sec'], $createdat_strip['tm_mon'], $createdat_strip['tm_mday'], $createdat_strip['tm_year'] + 1900)); 		
+				$createdat = date($this->conf["createdAt"], mktime($createdat_strip['tm_hour']+$this->conf["timezone"], $createdat_strip['tm_min'], $createdat_strip['tm_sec'], $createdat_strip['tm_mon']+1, $createdat_strip['tm_mday'], $createdat_strip['tm_year'] + 1900)); 		
 				$wrappedSubpartArray["###CREATEDAT###"] = $createdat;
 				
 				$wrappedSubpartArray["###ID###"] = $status['statuses'][0]['ch']['status'][$x]['ch']['id'][0]['values'][0];
 				
 				// Reply to URL
-				if($this->conf["replyToUrl"] && $status['statuses'][0]['ch']['status'][$x]['ch']['in_reply_to_status_id'][0]['values'][0]!='')	{
+				//var_dump( 'conf: ' . $this->conf["replyToUrl"] . ' UND ' . $status['statuses'][0]['ch']['status'][$x]['ch']['in_reply_to_status_id'][0]['values'][0]);
+				if($this->conf["replyToUrl"] && ($status['statuses'][0]['ch']['status'][$x]['ch']['in_reply_to_status_id'][0]['values'][0]!=''))	{
 					$replyStatus = $status['statuses'][0]['ch']['status'][$x]['ch']['text'][0]['values'][0];
 					$replyId = $status['statuses'][0]['ch']['status'][$x]['ch']['in_reply_to_user_id'][0]['values'][0];
 					$replyUser = t3lib_div::xml2tree( t3lib_div::getUrl( 'http://twitter.com/users/show/' . $replyId . '.xml' ) );
-					$replyStatus = str_replace("@" . $replyUser['user'][0]['ch']['screen_name'][0]['values'][0], '<a href="http://www.twitter.com/' . $replyUser['user'][0]['ch']['screen_name'][0]['values'][0] . '>@' . $replyUser['user'][0]['ch']['screen_name'][0]['values'][0] . '</a>', $replyStatus);
+					$replyStatus = str_replace("@" . $replyUser['user'][0]['ch']['screen_name'][0]['values'][0], '<a href="http://www.twitter.com/' . $replyUser['user'][0]['ch']['screen_name'][0]['values'][0] . '">@' . $replyUser['user'][0]['ch']['screen_name'][0]['values'][0] . '</a>', $replyStatus);
 					$wrappedSubpartArray["###SINGLESTATUS###"] = $replyStatus;
 				}
 				else {
@@ -139,6 +172,8 @@ class tx_twitterfrontend_pi1 extends tslib_pibase {
 			$markerArray["###SHOWSINGLESTATUS###"] = $content_singlestatus;
 			
 			$content = $this->cObj->substituteMarkerArrayCached($template['total'] , array(), $markerArray, array());
+			
+			$cacheData = $this->updateCacheDatabase($id, $view, $content, $updateData);
 		}
 		else	{
 			$content = $this->pi_getLL("missingTwitterId");
@@ -153,7 +188,7 @@ class tx_twitterfrontend_pi1 extends tslib_pibase {
 	* @param 	string 	$id: required. Specifies the ID or twitter username for whom to returns the updates.
 	* @return	The Content
 	* */
-	function showSingle($id=false)	{
+	function showSingle($id=false, $view, $updateData=false)	{
 		// Load CSS file and template
 		if($this->conf["cssFile"] != "")	{
 			$GLOBALS['TSFE']->additionalHeaderData[$this->extKey] = '<link rel="stylesheet" type="text/css" href="' . $this->conf["cssFile"] . '" />';
@@ -167,15 +202,18 @@ class tx_twitterfrontend_pi1 extends tslib_pibase {
 
 		// Prepare template markers
 		$markerArray = array();
-
 		
 		// Retrieve status updates from Twitter
 		if($id)	{
-			$status = t3lib_div::xml2tree( t3lib_div::getUrl( 'http://twitter.com/statuses/user_timeline/' . $id . '.xml' ) );
+			$status = t3lib_div::xml2tree(t3lib_div::getUrl( 'http://twitter.com/statuses/user_timeline/' . $id . '.xml'));
+			
+			// Pruefen, ob XML die korrekten Daten enthŠlt / Requests Ÿberschritten sind
+			// string(28) "Line 1: Invalid document end" 
+			// ^^ so nicht
 			
 			// Timestamp of status update
 			$createdat_strip = strptime($status['statuses'][0]['ch']['status'][0]['ch']['created_at'][0]['values'][0], "%a %b %d %H:%M:%S +0000 %Y");
-			$createdat = date("H:i:s d.m.Y", mktime($createdat_strip['tm_hour']+2, $createdat_strip['tm_min'], $createdat_strip['tm_sec'], $createdat_strip['tm_mon'], $createdat_strip['tm_mday'], $createdat_strip['tm_year'] + 1900)); 		
+			$createdat = date("H:i:s d.m.Y", mktime($createdat_strip['tm_hour']+2, $createdat_strip['tm_min'], $createdat_strip['tm_sec'], $createdat_strip['tm_mon']+1, $createdat_strip['tm_mday'], $createdat_strip['tm_year'] + 1900)); 		
 			$markerArray["###CREATEDAT###"] = $createdat;
 			
 			$markerArray["###ID###"] = $status['statuses'][0]['ch']['status'][0]['ch']['id'][0]['values'][0];
@@ -195,12 +233,39 @@ class tx_twitterfrontend_pi1 extends tslib_pibase {
 			$markerArray["###USERFOLLOWERSCOUNT###"] = $status['statuses'][0]['ch']['status'][0]['ch']['user'][0]['ch']['followers_count'][0]['values'][0];
 
 			$content = $this->cObj->substituteMarkerArrayCached($template, $markerArray, array(), array());
+			
+			$cacheData = $this->updateCacheDatabase($id, $view, $content, $updateData);
 		}
 		else	{
 			$content = $this->pi_getLL("missingTwitterId");
 		}
 
 		return $content;
+	}
+	
+	
+	function updateCacheDatabase($id, $view, $content, $updateData=false)	{		
+		$myTable = 'tx_twitterfrontend_cache';
+		$myValues = array (
+						'twitterid' => $id,
+						'showview' => $view,
+						'lastupdate' => time(),
+						'content' => $content
+					);
+		$myValuesUpdate = array (
+						'lastupdate' => time(),
+						'content' => $content
+					);					
+		$myWhere = 'twitterid="' . $id . '" AND showview="' . $view . '"';
+		
+		if(!$updateData)	{
+			$res = $GLOBALS['TYPO3_DB']->exec_INSERTquery( $myTable, $myValues );
+		}
+		else	{
+			$res = $GLOBALS['TYPO3_DB']->exec_UPDATEquery( $myTable, $myWhere, $myValuesUpdate );
+		}
+		
+		return $GLOBALS['TYPO3_DB']->debug_lastBuiltQuery;;
 	}
 }
 
